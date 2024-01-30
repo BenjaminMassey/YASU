@@ -24,6 +24,13 @@ struct YasuApp {
     info_edits: Vec<String>,
 }
 
+#[derive(PartialEq)]
+enum FileType {
+    Player,
+    Score,
+    Info,
+}
+
 impl YasuApp {
     fn new(_cc: &eframe::CreationContext<'_>) -> Self { 
         YasuApp {
@@ -33,22 +40,20 @@ impl YasuApp {
         }
     }
     fn write_data(&self, players: bool, scores: bool, infos: bool) {
-        for file_type in 0..3 {
-            if file_type == 0 && !players { continue; }
-            if file_type == 1 && !scores  { continue; }
-            if file_type == 2 && !infos   { continue; }
-            for i in 0..(if file_type == 2 { self.info_edits.len() } else { self.player_edits.len() }) {
+        for file_type in vec![FileType:: Player, FileType::Score, FileType::Info] {
+            if file_type == FileType::Player && !players { continue; }
+            if file_type == FileType::Score && !scores  { continue; }
+            if file_type == FileType::Info && !infos   { continue; }
+            let length = 
+                if file_type == FileType::Info { self.info_edits.len() }
+                else { self.player_edits.len() };
+            for i in 0..length {
                 let file_name =
-                    (if file_type == 0 {
-                        "player_".to_owned()
-                     } else {
-                        if file_type == 1 {
-                           "score_".to_owned()
-                        } else {
-                            "info_".to_owned()
-                        }
-                     })
-                    + &(i + 1).to_string() + ".txt";
+                    match file_type {
+                        FileType::Player => "player_".to_owned(),
+                        FileType::Score => "score_".to_owned(),
+                        FileType::Info => "info_".to_owned(),
+                    } + &(i + 1).to_string() + ".txt";
                 if !Path::new(&file_name).exists() {
                     File::create(&file_name).unwrap();
                 }
@@ -56,15 +61,11 @@ impl YasuApp {
                 let _ = writeln!(
                     &mut file,
                     "{}",
-                    (if file_type == 0 {
-                        &self.player_edits
-                     } else {
-                        if file_type == 1 { 
-                            &self.score_edits
-                        } else {
-                            &self.info_edits
-                        }
-                     })[i].clone()
+                    match file_type {
+                        FileType::Player => &self.player_edits,
+                        FileType::Score => &self.score_edits,
+                        FileType::Info => &self.info_edits,
+                        }[i].clone()
                 );
                 file.flush().unwrap();
             }
