@@ -6,14 +6,13 @@ use std::io::Write;
 use std::path::Path;
 
 fn main() {
-    let mut native_options = eframe::NativeOptions::default();
-    native_options.initial_window_size = Option::from(
-        egui::Vec2::new(325f32, 325f32)
-    );
     let _ = eframe::run_native(
         "YASU Window",
-        native_options,
-        Box::new(|cc| Box::new(YasuApp::new(cc)))
+        eframe::NativeOptions {
+            initial_window_size: Option::from(egui::Vec2::new(325f32, 325f32)),
+            ..Default::default()
+        },
+        Box::new(|cc| Box::new(YasuApp::new(cc))),
     );
 }
 
@@ -32,7 +31,7 @@ enum FileType {
 }
 
 impl YasuApp {
-    fn new(_cc: &eframe::CreationContext<'_>) -> Self { 
+    fn new(_cc: &eframe::CreationContext<'_>) -> Self {
         YasuApp {
             player_edits: vec![String::new()],
             score_edits: vec!["0".to_owned()],
@@ -40,20 +39,25 @@ impl YasuApp {
         }
     }
     fn write_data(&self, players: bool, scores: bool, infos: bool) {
-        for file_type in vec![FileType:: Player, FileType::Score, FileType::Info] {
-            if file_type == FileType::Player && !players { continue; }
-            if file_type == FileType::Score && !scores  { continue; }
-            if file_type == FileType::Info && !infos   { continue; }
-            let length = 
-                if file_type == FileType::Info { self.info_edits.len() }
-                else { self.player_edits.len() };
+        for file_type in [FileType::Player, FileType::Score, FileType::Info] {
+            if (file_type == FileType::Player && !players)
+                || (file_type == FileType::Score && !scores)
+                || (file_type == FileType::Info && !infos)
+            {
+                continue;
+            }
+            let length = if file_type == FileType::Info {
+                self.info_edits.len()
+            } else {
+                self.player_edits.len()
+            };
             for i in 0..length {
-                let file_name =
-                    match file_type {
-                        FileType::Player => "player_".to_owned(),
-                        FileType::Score => "score_".to_owned(),
-                        FileType::Info => "info_".to_owned(),
-                    } + &(i + 1).to_string() + ".txt";
+                let file_name = match file_type {
+                    FileType::Player => "player_".to_owned(),
+                    FileType::Score => "score_".to_owned(),
+                    FileType::Info => "info_".to_owned(),
+                } + &(i + 1).to_string()
+                    + ".txt";
                 if !Path::new(&file_name).exists() {
                     File::create(&file_name).unwrap();
                 }
@@ -65,7 +69,8 @@ impl YasuApp {
                         FileType::Player => &self.player_edits,
                         FileType::Score => &self.score_edits,
                         FileType::Info => &self.info_edits,
-                        }[i].clone()
+                    }[i]
+                        .clone()
                 );
                 file.flush().unwrap();
             }
@@ -91,37 +96,40 @@ impl eframe::App for YasuApp {
                     hui.add_sized(
                         egui::vec2(125.0, 20.0),
                         egui::TextEdit::singleline(&mut self.player_edits[i])
-                            .hint_text("Enter player name...")
+                            .hint_text("Enter player name..."),
                     );
                     let mut modify = ScoreModify::No;
-                    if hui.add_sized(
-                        egui::vec2(15.0, 20.0),
-                        egui::Button::new("-")
-                    ).clicked() {
+                    if hui
+                        .add_sized(egui::vec2(15.0, 20.0), egui::Button::new("-"))
+                        .clicked()
+                    {
                         modify = ScoreModify::Subtract;
                     }
                     hui.add_sized(
                         egui::vec2(25.0, 20.0),
-                        egui::TextEdit::singleline(&mut self.score_edits[i])
+                        egui::TextEdit::singleline(&mut self.score_edits[i]),
                     );
-                    if hui.add_sized(
-                        egui::vec2(15.0, 20.0),
-                        egui::Button::new("+")
-                    ).clicked() {
+                    if hui
+                        .add_sized(egui::vec2(15.0, 20.0), egui::Button::new("+"))
+                        .clicked()
+                    {
                         modify = ScoreModify::Add;
                     }
                     if modify != ScoreModify::No {
-                        let score = self.score_edits[i].parse::<i32>();
-                        if score.is_ok() {
-                            let modifier = if modify == ScoreModify::Subtract { -1i32 } else { 1i32 };
-                            let new_score = score.unwrap() + modifier;
+                        if let Ok(score) = self.score_edits[i].parse::<i32>() {
+                            let modifier = if modify == ScoreModify::Subtract {
+                                -1i32
+                            } else {
+                                1i32
+                            };
+                            let new_score = score + modifier;
                             self.score_edits[i] = new_score.to_string();
                         }
                     }
-                    if self.player_edits.len() > 1 {
-                        if hui.add(egui::Button::new("Remove Player")).clicked() {
-                            to_delete.push(i);
-                        }
+                    if self.player_edits.len() > 1
+                        && hui.add(egui::Button::new("Remove Player")).clicked()
+                    {
+                        to_delete.push(i);
                     }
                 });
             }
@@ -152,12 +160,12 @@ impl eframe::App for YasuApp {
                     hui.add_sized(
                         egui::vec2(200.0, 20.0),
                         egui::TextEdit::singleline(&mut self.info_edits[i])
-                            .hint_text("Enter extra info...")
+                            .hint_text("Enter extra info..."),
                     );
-                    if self.info_edits.len() > 1 {
-                        if hui.add(egui::Button::new("Remove Info")).clicked() {
-                            to_delete.push(i);
-                        }
+                    if self.info_edits.len() > 1
+                        && hui.add(egui::Button::new("Remove Info")).clicked()
+                    {
+                        to_delete.push(i);
                     }
                 });
             }
