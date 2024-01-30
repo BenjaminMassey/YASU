@@ -30,8 +30,10 @@ impl YasuApp {
             score_edits: vec!["0".to_owned()],
         }
     }
-    fn write_data(&self) {
+    fn write_data(&self, players: bool, scores: bool) {
         for file_type in 0..2 {
+            if file_type == 0 && !players { continue; }
+            if file_type == 1 && !scores  { continue; }
             for i in 0..self.player_edits.len() {
                 let file_name =
                     (if file_type == 0 { "player_".to_owned() } else { "score_".to_owned() })
@@ -107,13 +109,25 @@ impl eframe::App for YasuApp {
                 self.player_edits.remove(*index);
                 self.score_edits.remove(*index);
             }
-            if cui.add(egui::Button::new("Add Player")).clicked() {
-                self.player_edits.push(String::new());
-                self.score_edits.push("0".to_owned());
-            }
+            cui.horizontal(|hui| {
+                if hui.add(egui::Button::new("Add Player")).clicked() {
+                    self.player_edits.push(String::new());
+                    self.score_edits.push("0".to_owned());
+                }
+                hui.separator();
+                hui.separator();
+                hui.separator();
+                hui.separator();
+                if hui.add(egui::Button::new("Zero Scores")).clicked() {
+                    for i in 0..self.score_edits.len() {
+                        self.score_edits[i] = "0".to_owned();
+                    }
+                    self.write_data(false, true);
+                }
+            });
             cui.separator();
             if cui.add(egui::Button::new("Submit")).clicked() {
-                self.write_data();
+                self.write_data(true, true);
             }
         });
     }
