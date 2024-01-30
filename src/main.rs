@@ -21,6 +21,7 @@ fn main() {
 struct YasuApp {
     player_edits: Vec<String>,
     score_edits: Vec<String>,
+    info_edits: Vec<String>,
 }
 
 impl YasuApp {
@@ -28,15 +29,25 @@ impl YasuApp {
         YasuApp {
             player_edits: vec![String::new()],
             score_edits: vec!["0".to_owned()],
+            info_edits: vec![String::new()],
         }
     }
-    fn write_data(&self, players: bool, scores: bool) {
-        for file_type in 0..2 {
+    fn write_data(&self, players: bool, scores: bool, infos: bool) {
+        for file_type in 0..3 {
             if file_type == 0 && !players { continue; }
             if file_type == 1 && !scores  { continue; }
-            for i in 0..self.player_edits.len() {
+            if file_type == 2 && !infos   { continue; }
+            for i in 0..(if file_type == 2 { self.info_edits.len() } else { self.player_edits.len() }) {
                 let file_name =
-                    (if file_type == 0 { "player_".to_owned() } else { "score_".to_owned() })
+                    (if file_type == 0 {
+                        "player_".to_owned()
+                     } else {
+                        if file_type == 1 {
+                           "score_".to_owned()
+                        } else {
+                            "info_".to_owned()
+                        }
+                     })
                     + &(i + 1).to_string() + ".txt";
                 if !Path::new(&file_name).exists() {
                     File::create(&file_name).unwrap();
@@ -45,7 +56,15 @@ impl YasuApp {
                 let _ = writeln!(
                     &mut file,
                     "{}",
-                    (if file_type == 0 { &self.player_edits } else { &self.score_edits })[i].clone()
+                    (if file_type == 0 {
+                        &self.player_edits
+                     } else {
+                        if file_type == 1 { 
+                            &self.score_edits
+                        } else {
+                            &self.info_edits
+                        }
+                     })[i].clone()
                 );
                 file.flush().unwrap();
             }
@@ -122,12 +141,34 @@ impl eframe::App for YasuApp {
                     for i in 0..self.score_edits.len() {
                         self.score_edits[i] = "0".to_owned();
                     }
-                    self.write_data(false, true);
+                    self.write_data(false, true, false);
                 }
             });
             cui.separator();
+            to_delete.clear();
+            for i in 0..self.info_edits.len() {
+                cui.horizontal(|hui| {
+                    hui.add_sized(
+                        egui::vec2(200.0, 20.0),
+                        egui::TextEdit::singleline(&mut self.info_edits[i])
+                            .hint_text("Enter extra info...")
+                    );
+                    if self.info_edits.len() > 1 {
+                        if hui.add(egui::Button::new("Remove Info")).clicked() {
+                            to_delete.push(i);
+                        }
+                    }
+                });
+            }
+            for index in &to_delete {
+                self.info_edits.remove(*index);
+            }
+            if cui.add(egui::Button::new("Add Info Text")).clicked() {
+                self.info_edits.push(String::new());
+            }
+            cui.separator();
             if cui.add(egui::Button::new("Submit")).clicked() {
-                self.write_data(true, true);
+                self.write_data(true, true, true);
             }
         });
     }
