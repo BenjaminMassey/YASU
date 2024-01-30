@@ -7,9 +7,9 @@ use std::path::Path;
 
 fn main() {
     let mut native_options = eframe::NativeOptions::default();
-    /*native_options.initial_window_size = Option::from(
-        Vec2::new(765f32, 350f32)
-    );*/
+    native_options.initial_window_size = Option::from(
+        egui::Vec2::new(325f32, 325f32)
+    );
     let _ = eframe::run_native(
         "YASU Window",
         native_options,
@@ -107,7 +107,6 @@ impl eframe::App for YasuApp {
                 self.player_edits.remove(*index);
                 self.score_edits.remove(*index);
             }
-            cui.separator();
             if cui.add(egui::Button::new("Add Player")).clicked() {
                 self.player_edits.push(String::new());
                 self.score_edits.push("0".to_owned());
