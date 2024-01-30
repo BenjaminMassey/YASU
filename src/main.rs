@@ -1,9 +1,9 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use eframe::egui;
-use egui::Vec2;
-use std::fs;
-use std::collections::HashMap;
+use std::fs::File;
+use std::io::Write;
+use std::path::Path;
 
 fn main() {
     let mut native_options = eframe::NativeOptions::default();
@@ -28,6 +28,25 @@ impl YasuApp {
         YasuApp {
             player_edits: vec![String::new()],
             score_edits: vec!["0".to_owned()],
+        }
+    }
+    fn write_data(&self) {
+        for file_type in 0..2 {
+            for i in 0..self.player_edits.len() {
+                let file_name =
+                    (if file_type == 0 { "player_".to_owned() } else { "score_".to_owned() })
+                    + &(i + 1).to_string() + ".txt";
+                if !Path::new(&file_name).exists() {
+                    File::create(&file_name).unwrap();
+                }
+                let mut file = File::options().write(true).open(file_name).unwrap();
+                let _ = writeln!(
+                    &mut file,
+                    "{}",
+                    (if file_type == 0 { &self.player_edits } else { &self.score_edits })[i].clone()
+                );
+                file.flush().unwrap();
+            }
         }
     }
 }
@@ -92,6 +111,10 @@ impl eframe::App for YasuApp {
             if cui.add(egui::Button::new("Add Player")).clicked() {
                 self.player_edits.push(String::new());
                 self.score_edits.push("0".to_owned());
+            }
+            cui.separator();
+            if cui.add(egui::Button::new("Submit")).clicked() {
+                self.write_data();
             }
         });
     }
