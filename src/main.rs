@@ -19,10 +19,13 @@ fn main() {
     let _ = eframe::run_native(
         "YASU Window",
         eframe::NativeOptions {
-            initial_window_size: Option::from(egui::Vec2::new(325f32, 325f32)),
+            //initial_window_size: Option::from(egui::Vec2::new(325f32, 325f32)),
             ..Default::default()
         },
-        Box::new(|cc| Box::new(YasuApp::new(cc))),
+        Box::new(|cc| {
+            egui_extras::install_image_loaders(&cc.egui_ctx);
+            Box::new(YasuApp::new(cc))
+        }),
     );
 }
 
@@ -43,11 +46,18 @@ enum FileType {
 }
 
 impl YasuApp {
-    fn new(_cc: &eframe::CreationContext<'_>) -> Self {
+    fn new(cc: &eframe::CreationContext<'_>) -> Self {
         let image_options = fs::read_dir(IMG_DIR)
             .unwrap()
             .map(|f| f.unwrap().path().as_path().to_str().unwrap().to_owned())
             .collect::<Vec<String>>();
+
+        for image in &image_options {
+            cc.egui_ctx.include_bytes(
+                "bytes://".to_owned() + image,
+                egui::load::Bytes::from(fs::read(image).unwrap()),
+            );
+        }
 
         YasuApp {
             player_edits: vec![String::new()],
@@ -170,6 +180,11 @@ impl eframe::App for YasuApp {
                             self.score_edits[i] = new_score.to_string();
                         }
                     }
+                    
+                    hui.add_sized(
+                        egui::vec2(20.0, 20.0),
+                        egui::Image::new("bytes://".to_owned() + &self.image_options[self.image_select[i]]),
+                    );
 
                     hui.push_id(i + 77, |cui| {
                         egui::ComboBox::from_label("").show_index(
