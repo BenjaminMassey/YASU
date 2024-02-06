@@ -42,7 +42,7 @@ impl YasuApp {
     fn write_data(&self, players: bool, scores: bool, infos: bool) {
         let text_folder = "./text/";
         if !Path::new(text_folder).exists() {
-            let _ = create_dir(text_folder).unwrap();
+            create_dir(text_folder).unwrap();
         }
         for file_type in [FileType::Player, FileType::Score, FileType::Info] {
             if (file_type == FileType::Player && !players)
