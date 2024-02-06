@@ -111,12 +111,12 @@ impl YasuApp {
 }
 
 fn path_to_name(path: String) -> String {
-    let pieces = path.split("/").collect::<Vec<&str>>();
-    if pieces.len() == 0 {
+    let pieces = path.split('/').collect::<Vec<&str>>();
+    if pieces.is_empty() {
         return path;
     }
-    let split = pieces[pieces.len() - 1].split(".").collect::<Vec<&str>>();
-    if pieces.len() == 0 {
+    let split = pieces[pieces.len() - 1].split('.').collect::<Vec<&str>>();
+    if pieces.is_empty() {
         return path;
     }
     split[0].to_owned()
