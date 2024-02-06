@@ -44,8 +44,8 @@ enum FileType {
 
 impl YasuApp {
     fn new(_cc: &eframe::CreationContext<'_>) -> Self {
-
-        let image_options = fs::read_dir(IMG_DIR).unwrap()
+        let image_options = fs::read_dir(IMG_DIR)
+            .unwrap()
             .map(|f| f.unwrap().path().as_path().to_str().unwrap().to_owned())
             .collect::<Vec<String>>();
 
@@ -97,23 +97,28 @@ impl YasuApp {
                 file.flush().unwrap();
             }
         }
-        
+
         // Image files
         for i in 0..self.image_select.len() {
             let target = OUT_DIR.to_string() + "image_" + &(i + 1).to_string() + ".png";
             fs::copy(
                 self.image_options.clone()[self.image_select.clone()[i]].clone(),
-                target
-            ).unwrap();
+                target,
+            )
+            .unwrap();
         }
     }
 }
 
 fn path_to_name(path: String) -> String {
     let pieces = path.split("/").collect::<Vec<&str>>();
-    if pieces.len() == 0 { return path; }
+    if pieces.len() == 0 {
+        return path;
+    }
     let split = pieces[pieces.len() - 1].split(".").collect::<Vec<&str>>();
-    if pieces.len() == 0 { return path; }
+    if pieces.len() == 0 {
+        return path;
+    }
     split[0].to_owned()
 }
 
@@ -171,10 +176,10 @@ impl eframe::App for YasuApp {
                             cui,
                             &mut self.image_select[i],
                             self.image_options.len(),
-                            |j| path_to_name(self.image_options.clone()[j].clone())
+                            |j| path_to_name(self.image_options.clone()[j].clone()),
                         )
                     });
-                    
+
                     if self.player_edits.len() > 1
                         && hui.add(egui::Button::new("Remove Player")).clicked()
                     {
