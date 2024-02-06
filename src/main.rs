@@ -138,14 +138,14 @@ impl eframe::App for YasuApp {
                 self.score_edits.remove(*index);
             }
             cui.horizontal(|hui| {
-                if hui.add(egui::Button::new("Add Player")).clicked() {
-                    self.player_edits.push(String::new());
-                    self.score_edits.push("0".to_owned());
+                if hui.add_sized(
+                      egui::vec2(125.0, 20.0), 
+                      egui::Button::new("Add Player")
+                   )
+                   .clicked() {
+                      self.player_edits.push(String::new());
+                      self.score_edits.push("0".to_owned());
                 }
-                hui.separator();
-                hui.separator();
-                hui.separator();
-                hui.separator();
                 if hui.add(egui::Button::new("Zero Scores")).clicked() {
                     for i in 0..self.score_edits.len() {
                         self.score_edits[i] = "0".to_owned();
