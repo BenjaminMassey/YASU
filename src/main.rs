@@ -1,6 +1,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use eframe::egui;
+use std::fs::create_dir;
 use std::fs::File;
 use std::io::Write;
 use std::path::Path;
@@ -39,6 +40,10 @@ impl YasuApp {
         }
     }
     fn write_data(&self, players: bool, scores: bool, infos: bool) {
+        let text_folder = "./text/";
+        if !Path::new(text_folder).exists() {
+            let _ = create_dir(text_folder).unwrap();
+        }
         for file_type in [FileType::Player, FileType::Score, FileType::Info] {
             if (file_type == FileType::Player && !players)
                 || (file_type == FileType::Score && !scores)
@@ -52,11 +57,13 @@ impl YasuApp {
                 self.player_edits.len()
             };
             for i in 0..length {
-                let file_name = match file_type {
-                    FileType::Player => "player_".to_owned(),
-                    FileType::Score => "score_".to_owned(),
-                    FileType::Info => "info_".to_owned(),
-                } + &(i + 1).to_string()
+                let file_name = text_folder.to_owned() +
+                    match file_type {
+                        FileType::Player => "player_",
+                        FileType::Score => "score_",
+                        FileType::Info => "info_",
+                    }
+                    + &(i + 1).to_string()
                     + ".txt";
                 if !Path::new(&file_name).exists() {
                     File::create(&file_name).unwrap();
