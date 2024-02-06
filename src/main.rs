@@ -57,8 +57,8 @@ impl YasuApp {
                 self.player_edits.len()
             };
             for i in 0..length {
-                let file_name = text_folder.to_owned() +
-                    match file_type {
+                let file_name = text_folder.to_owned()
+                    + match file_type {
                         FileType::Player => "player_",
                         FileType::Score => "score_",
                         FileType::Info => "info_",
@@ -145,13 +145,12 @@ impl eframe::App for YasuApp {
                 self.score_edits.remove(*index);
             }
             cui.horizontal(|hui| {
-                if hui.add_sized(
-                      egui::vec2(125.0, 20.0), 
-                      egui::Button::new("Add Player")
-                   )
-                   .clicked() {
-                      self.player_edits.push(String::new());
-                      self.score_edits.push("0".to_owned());
+                if hui
+                    .add_sized(egui::vec2(125.0, 20.0), egui::Button::new("Add Player"))
+                    .clicked()
+                {
+                    self.player_edits.push(String::new());
+                    self.score_edits.push("0".to_owned());
                 }
                 if hui.add(egui::Button::new("Zero Scores")).clicked() {
                     for i in 0..self.score_edits.len() {
