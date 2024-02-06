@@ -2,11 +2,21 @@
 
 use eframe::egui;
 use std::fs::create_dir;
+use std::fs::read_dir;
 use std::fs::File;
 use std::io::Write;
 use std::path::Path;
 
+const TEXT_DIR: &str = "./text/";
+const IMG_DIR: &str = "./images/";
+
 fn main() {
+    for dir in [TEXT_DIR, IMG_DIR] {
+        if !Path::new(dir).exists() {
+            create_dir(dir).unwrap();
+        }
+    }
+
     let _ = eframe::run_native(
         "YASU Window",
         eframe::NativeOptions {
@@ -22,6 +32,8 @@ struct YasuApp {
     player_edits: Vec<String>,
     score_edits: Vec<String>,
     info_edits: Vec<String>,
+    image_select: Vec<usize>,
+    image_options: Vec<String>, // non-ui element, storage
 }
 
 #[derive(PartialEq)]
@@ -33,17 +45,20 @@ enum FileType {
 
 impl YasuApp {
     fn new(_cc: &eframe::CreationContext<'_>) -> Self {
+
+        let image_options = read_dir(IMG_DIR).unwrap()
+            .map(|f| f.unwrap().path().as_path().to_str().unwrap().to_owned())
+            .collect::<Vec<String>>();
+
         YasuApp {
             player_edits: vec![String::new()],
             score_edits: vec!["0".to_owned()],
             info_edits: vec![String::new()],
+            image_select: vec![0],
+            image_options,
         }
     }
     fn write_data(&self, players: bool, scores: bool, infos: bool) {
-        let text_folder = "./text/";
-        if !Path::new(text_folder).exists() {
-            create_dir(text_folder).unwrap();
-        }
         for file_type in [FileType::Player, FileType::Score, FileType::Info] {
             if (file_type == FileType::Player && !players)
                 || (file_type == FileType::Score && !scores)
@@ -57,7 +72,7 @@ impl YasuApp {
                 self.player_edits.len()
             };
             for i in 0..length {
-                let file_name = text_folder.to_owned()
+                let file_name = TEXT_DIR.to_owned()
                     + match file_type {
                         FileType::Player => "player_",
                         FileType::Score => "score_",
@@ -133,6 +148,16 @@ impl eframe::App for YasuApp {
                             self.score_edits[i] = new_score.to_string();
                         }
                     }
+
+                    hui.push_id(i + 77, |cui| {
+                        egui::ComboBox::from_label("").show_index(
+                            cui,
+                            &mut self.image_select[i],
+                            self.image_options.len(),
+                            |j| self.image_options.clone()[j].clone()
+                        )
+                    });
+                    
                     if self.player_edits.len() > 1
                         && hui.add(egui::Button::new("Remove Player")).clicked()
                     {
@@ -151,6 +176,7 @@ impl eframe::App for YasuApp {
                 {
                     self.player_edits.push(String::new());
                     self.score_edits.push("0".to_owned());
+                    self.image_select.push(0);
                 }
                 if hui.add(egui::Button::new("Zero Scores")).clicked() {
                     for i in 0..self.score_edits.len() {
