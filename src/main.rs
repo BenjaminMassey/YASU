@@ -180,10 +180,12 @@ impl eframe::App for YasuApp {
                             self.score_edits[i] = new_score.to_string();
                         }
                     }
-                    
+
                     hui.add_sized(
                         egui::vec2(20.0, 20.0),
-                        egui::Image::new("bytes://".to_owned() + &self.image_options[self.image_select[i]]),
+                        egui::Image::new(
+                            "bytes://".to_owned() + &self.image_options[self.image_select[i]],
+                        ),
                     );
 
                     hui.push_id(i + 77, |cui| {
