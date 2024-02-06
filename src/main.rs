@@ -100,6 +100,14 @@ impl YasuApp {
     }
 }
 
+fn path_to_name(path: String) -> String {
+    let pieces = path.split("/").collect::<Vec<&str>>();
+    if pieces.len() == 0 { return path; }
+    let split = pieces[pieces.len() - 1].split(".").collect::<Vec<&str>>();
+    if pieces.len() == 0 { return path; }
+    split[0].to_owned()
+}
+
 #[derive(PartialEq)]
 enum ScoreModify {
     No,
@@ -154,7 +162,7 @@ impl eframe::App for YasuApp {
                             cui,
                             &mut self.image_select[i],
                             self.image_options.len(),
-                            |j| self.image_options.clone()[j].clone()
+                            |j| path_to_name(self.image_options.clone()[j].clone())
                         )
                     });
                     
