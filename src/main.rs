@@ -1,19 +1,18 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use eframe::egui;
-use std::fs::create_dir;
-use std::fs::read_dir;
+use std::fs;
 use std::fs::File;
 use std::io::Write;
 use std::path::Path;
 
-const TEXT_DIR: &str = "./text/";
+const OUT_DIR: &str = "./output/";
 const IMG_DIR: &str = "./images/";
 
 fn main() {
-    for dir in [TEXT_DIR, IMG_DIR] {
+    for dir in [OUT_DIR, IMG_DIR] {
         if !Path::new(dir).exists() {
-            create_dir(dir).unwrap();
+            fs::create_dir(dir).unwrap();
         }
     }
 
@@ -46,7 +45,7 @@ enum FileType {
 impl YasuApp {
     fn new(_cc: &eframe::CreationContext<'_>) -> Self {
 
-        let image_options = read_dir(IMG_DIR).unwrap()
+        let image_options = fs::read_dir(IMG_DIR).unwrap()
             .map(|f| f.unwrap().path().as_path().to_str().unwrap().to_owned())
             .collect::<Vec<String>>();
 
@@ -59,6 +58,7 @@ impl YasuApp {
         }
     }
     fn write_data(&self, players: bool, scores: bool, infos: bool) {
+        // Text files
         for file_type in [FileType::Player, FileType::Score, FileType::Info] {
             if (file_type == FileType::Player && !players)
                 || (file_type == FileType::Score && !scores)
@@ -72,7 +72,7 @@ impl YasuApp {
                 self.player_edits.len()
             };
             for i in 0..length {
-                let file_name = TEXT_DIR.to_owned()
+                let file_name = OUT_DIR.to_owned()
                     + match file_type {
                         FileType::Player => "player_",
                         FileType::Score => "score_",
@@ -84,7 +84,7 @@ impl YasuApp {
                     File::create(&file_name).unwrap();
                 }
                 let mut file = File::options().write(true).open(file_name).unwrap();
-                let _ = writeln!(
+                let _ = write!(
                     &mut file,
                     "{}",
                     match file_type {
@@ -96,6 +96,15 @@ impl YasuApp {
                 );
                 file.flush().unwrap();
             }
+        }
+        
+        // Image files
+        for i in 0..self.image_select.len() {
+            let target = OUT_DIR.to_string() + "image_" + &(i + 1).to_string() + ".png";
+            fs::copy(
+                self.image_options.clone()[self.image_select.clone()[i]].clone(),
+                target
+            ).unwrap();
         }
     }
 }
