@@ -90,21 +90,26 @@ impl YasuApp {
                     }
                     + &(i + 1).to_string()
                     + ".txt";
-                if !Path::new(&file_name).exists() {
-                    File::create(&file_name).unwrap();
-                }
-                let mut file = File::options().write(true).open(file_name).unwrap();
-                let _ = write!(
-                    &mut file,
-                    "{}",
+                let _ = std::fs::remove_file(&file_name);
+                // TODO: deleting here because write_all below is not properly
+                //       overwriting the file: instead, a write_all with "ab"
+                //       to the previous text of "1234" results in "ab34"
+                //       misunderstanding of functionality, or misusage?
+                let mut file = File::options()
+                    .create(true)
+                    .write(true)
+                    .open(&file_name)
+                    .expect(&format!("Failed to open \"{}\"", file_name));
+                let contents = 
                     match file_type {
                         FileType::Player => &self.player_edits,
                         FileType::Score => &self.score_edits,
                         FileType::Info => &self.info_edits,
                     }[i]
-                        .clone()
-                );
-                file.flush().unwrap();
+                    .clone();
+                println!("{}", contents);
+                let _ = file.write_all(contents.as_bytes());
+                let _ = file.flush();
             }
         }
 
@@ -180,23 +185,22 @@ impl eframe::App for YasuApp {
                             self.score_edits[i] = new_score.to_string();
                         }
                     }
-
-                    hui.add_sized(
-                        egui::vec2(20.0, 20.0),
-                        egui::Image::new(
-                            "bytes://".to_owned() + &self.image_options[self.image_select[i]],
-                        ),
-                    );
-
-                    hui.push_id(i + 77, |cui| {
-                        egui::ComboBox::from_label("").show_index(
-                            cui,
-                            &mut self.image_select[i],
-                            self.image_options.len(),
-                            |j| path_to_name(self.image_options.clone()[j].clone()),
-                        )
-                    });
-
+                    if !(self.image_options.is_empty() || self.image_select.is_empty()) {
+                        hui.add_sized(
+                            egui::vec2(20.0, 20.0),
+                            egui::Image::new(
+                                "bytes://".to_owned() + &self.image_options[self.image_select[i]],
+                            ),
+                        );
+                        hui.push_id(i + 77, |cui| {
+                            egui::ComboBox::from_label("").show_index(
+                                cui,
+                                &mut self.image_select[i],
+                                self.image_options.len(),
+                                |j| path_to_name(self.image_options.clone()[j].clone()),
+                            )
+                        });
+                    }
                     if self.player_edits.len() > 1
                         && hui.add(egui::Button::new("Remove Player")).clicked()
                     {
