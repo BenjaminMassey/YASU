@@ -90,14 +90,10 @@ impl YasuApp {
                     }
                     + &(i + 1).to_string()
                     + ".txt";
-                let _ = std::fs::remove_file(&file_name);
-                // TODO: deleting here because write_all below is not properly
-                //       overwriting the file: instead, a write_all with "ab"
-                //       to the previous text of "1234" results in "ab34"
-                //       misunderstanding of functionality, or misusage?
                 let mut file = File::options()
                     .create(true)
                     .write(true)
+                    .truncate(true)
                     .open(&file_name)
                     .expect(&format!("Failed to open \"{}\"", file_name));
                 let contents = 
@@ -107,7 +103,6 @@ impl YasuApp {
                         FileType::Info => &self.info_edits,
                     }[i]
                     .clone();
-                println!("{}", contents);
                 let _ = file.write_all(contents.as_bytes());
                 let _ = file.flush();
             }
