@@ -1,6 +1,6 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use eframe::egui;
+use eframe::egui::{self, FontId, Widget};
 use std::fs;
 use std::fs::File;
 use std::io::Write;
@@ -16,14 +16,25 @@ fn main() {
         }
     }
 
+    let mut fonts = egui::FontDefinitions::default();
+    fonts.font_data.insert(
+        "Roboto".to_owned(),
+        egui::FontData::from_static(include_bytes!("../fonts/Roboto-Regular.ttf"))
+    );
+    fonts.families.insert(egui::FontFamily::Name("Roboto".into()), vec!["Roboto".to_owned()]);
+
     let _ = eframe::run_native(
         "YASU Window",
         eframe::NativeOptions {
-            //initial_window_size: Option::from(egui::Vec2::new(325f32, 325f32)),
+            viewport: egui::viewport::ViewportBuilder {
+                inner_size: Option::from(egui::Vec2::new(475f32, 475f32)),
+                ..Default::default()
+            },
             ..Default::default()
         },
         Box::new(|cc| {
             egui_extras::install_image_loaders(&cc.egui_ctx);
+            let _ = &cc.egui_ctx.set_fonts(fonts);
             Box::new(YasuApp::new(cc))
         }),
     );
@@ -139,10 +150,50 @@ enum ScoreModify {
     Add,
 }
 
+fn primary_font_id(font_size: f32) -> egui::FontId {
+    egui::FontId::new(
+        font_size,
+        egui::FontFamily::Name("Roboto".into())
+    )
+}
+
+fn primary_font(font_size: f32) -> egui::FontSelection {
+    egui::FontSelection::FontId(
+        primary_font_id(font_size)
+    )
+}
+
+fn spacer(ui: &mut egui::Ui, width: f32, height: f32) {
+    ui.add_sized(
+        egui::Vec2::new(width, height),
+        egui::Label::new(""),
+    );
+}
+
+fn vertical_spacer(ui: &mut egui::Ui, height: f32) {
+    spacer(ui, 1.0, height);
+}
+
+fn horizontal_spacer(ui: &mut egui::Ui, width: f32) {
+    spacer(ui, width, 1.0)
+}
+
 impl eframe::App for YasuApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |cui| {
-            cui.heading("YASU");
+            cui.add(
+                egui::TextEdit::singleline(&mut "Yet Another Streaming Utility (YASU)")
+                    .font(primary_font(22.0))
+                    .clip_text(false)
+                    .interactive(false)
+            );
+            vertical_spacer(cui, 1.0);
+            cui.add(
+                egui::TextEdit::singleline(&mut "Player Info")
+                    .font(primary_font(18.0))
+                    .clip_text(false)
+                    .interactive(false)
+            );
             cui.separator();
             let mut to_delete = vec![];
             for i in 0..self.player_edits.len() {
@@ -223,8 +274,15 @@ impl eframe::App for YasuApp {
                     self.write_data(false, true, false);
                 }
             });
-            cui.separator();
             to_delete.clear();
+            vertical_spacer(cui, 1.0);
+            cui.add(
+                egui::TextEdit::singleline(&mut "General Info")
+                    .font(primary_font(18.0))
+                    .clip_text(false)
+                    .interactive(false)
+            );
+            cui.separator();
             for i in 0..self.info_edits.len() {
                 cui.horizontal(|hui| {
                     hui.add_sized(
@@ -245,10 +303,20 @@ impl eframe::App for YasuApp {
             if cui.add(egui::Button::new("Add Info Text")).clicked() {
                 self.info_edits.push(String::new());
             }
-            cui.separator();
-            if cui.add(egui::Button::new("Submit")).clicked() {
-                self.write_data(true, true, true);
-            }
+            vertical_spacer(cui, 25.0);
+            cui.style_mut().text_styles.insert(
+                egui::TextStyle::Button,
+                primary_font_id(22.0),
+            );
+            cui.horizontal(|hui| {
+                horizontal_spacer(hui, 162.0);
+                if hui.add_sized(
+                    egui::Vec2::new(120.0, 60.0),
+                    egui::Button::new("Submit")
+                ).clicked() {
+                    self.write_data(true, true, true);
+                }
+            });
         });
     }
 }
