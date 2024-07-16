@@ -21,6 +21,21 @@ pub fn path_to_name(path: String) -> String {
     split[0].to_owned()
 }
 
+pub fn swap_first_second_player(yasu: &mut app::YasuApp) {
+    assert_eq!(yasu.player_edits.len(), 2);
+    let temp: (String, String, usize) = (
+        yasu.player_edits[0].clone(),
+        yasu.score_edits[0].clone(),
+        yasu.image_select[0],
+    );
+    yasu.player_edits.remove(0);
+    yasu.score_edits.remove(0);
+    yasu.image_select.remove(0);
+    yasu.player_edits.push(temp.0.to_owned());
+    yasu.score_edits.push(temp.1.to_owned());
+    yasu.image_select.push(temp.2);
+}
+
 pub fn write_data(yasu: &app::YasuApp, players: bool, scores: bool, infos: bool) {
     // Text files
     for file_type in [FileType::Player, FileType::Score, FileType::Info] {

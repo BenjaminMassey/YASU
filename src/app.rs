@@ -130,6 +130,11 @@ impl eframe::App for YasuApp {
                     }
                     util::write_data(&self, false, true, false);
                 }
+                if self.player_edits.len() == 2 &&
+                    hui.add(egui::Button::new("Swap Players")).clicked() {
+                    util::swap_first_second_player(self);
+                    util::write_data(&self, true, true, false);
+                }
             });
             to_delete.clear();
             gui::vertical_spacer(cui, 1.0);
