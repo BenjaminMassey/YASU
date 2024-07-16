@@ -25,11 +25,13 @@ impl YasuApp {
             );
         }
 
+        let start_data = util::read_data(&image_options);
+
         YasuApp {
-            player_edits: vec![String::new()],
-            score_edits: vec!["0".to_owned()],
-            info_edits: vec![String::new()],
-            image_select: vec![0],
+            player_edits: start_data.0,
+            score_edits: start_data.1,
+            info_edits: start_data.2,
+            image_select: start_data.3,
             image_options,
         }
     }

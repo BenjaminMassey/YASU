@@ -36,6 +36,70 @@ pub fn swap_first_second_player(yasu: &mut app::YasuApp) {
     yasu.image_select.push(temp.2);
 }
 
+pub fn read_data(image_options: &[String])
+-> (Vec<String>, Vec<String>, Vec<String>, Vec<usize>) {
+    let mut players: Vec<String> = vec![];
+    let mut scores: Vec<String> = vec![];
+    let mut infos: Vec<String> = vec![];
+    let mut images: Vec<usize> = vec![];
+    for file_type in [FileType::Player, FileType::Score, FileType::Info] {
+        let mut i: usize = 1;
+        loop {
+            let file_name = crate::OUT_DIR.to_owned()
+                + match file_type {
+                    FileType::Player => "player_",
+                    FileType::Score => "score_",
+                    FileType::Info => "info_",
+                }
+                + &i.to_string()
+                + ".txt";
+            if !std::path::Path::new(&file_name).exists() {
+                break;
+            }
+            let data = std::fs::read_to_string(&file_name).unwrap();
+            match file_type {
+                FileType::Player => players.push(data),
+                FileType::Score => scores.push(data),
+                FileType::Info => infos.push(data),
+            }
+            i += 1;
+        }
+    }
+    let mut i: usize = 1;
+    loop {
+        let file_name = format!(
+            "{}image_{}.png",
+            crate::OUT_DIR,
+            i,
+        );
+        if !std::path::Path::new(&file_name).exists() {
+            break;
+        }
+        let image_data = std::fs::read(&file_name).unwrap();
+        for (j, option) in image_options.iter().enumerate() {
+            let option_data = std::fs::read(&option).unwrap();
+            if image_data == option_data { // TODO: quicker hash than full reads?
+                images.push(j);
+                break;
+            }
+        }
+        i += 1;
+    }
+    if players.is_empty() {
+        players = vec![String::new()];
+    }
+    if scores.is_empty() {
+        scores = vec!["0".to_owned()];
+    }
+    if infos.is_empty() {
+        infos = vec![String::new()];
+    }
+    if images.is_empty() {
+        images = vec![0];
+    }
+    (players, scores, infos, images)
+}
+
 pub fn write_data(yasu: &app::YasuApp, players: bool, scores: bool, infos: bool) {
     // Text files
     for file_type in [FileType::Player, FileType::Score, FileType::Info] {
