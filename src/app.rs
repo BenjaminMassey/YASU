@@ -1,4 +1,5 @@
 use crate::gui;
+use crate::replay;
 use crate::util;
 
 use eframe::egui;
@@ -39,6 +40,11 @@ impl YasuApp {
 
 impl eframe::App for YasuApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        ctx.input(|i|{
+            if i.key_pressed(egui::Key::R) && i.modifiers.shift && i.modifiers.ctrl {
+                replay::perform();
+            }
+        });
         egui::CentralPanel::default().show(ctx, |cui| {
             cui.add(
                 egui::TextEdit::singleline(&mut "Yet Another Streaming Utility (YASU)")
@@ -181,6 +187,13 @@ impl eframe::App for YasuApp {
                     util::write_data(&self, true, true, true);
                 }
             });
+            gui::vertical_spacer(cui, 25.0);
+            cui.add(
+                egui::TextEdit::singleline(&mut "Press CTRL+SHIFT+R to update replay.")
+                    .font(gui::primary_font(12.0))
+                    .clip_text(false)
+                    .interactive(false)
+            );
         });
     }
 }

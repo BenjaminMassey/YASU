@@ -15,6 +15,7 @@ env_logger = { version = "0.10", default-features = false, features = [
   "auto-color",
   "humantime",
 ] }
+glob = "0.3.1"
 image = { version = "0.24", default-features = false, features = [
   "jpeg",
   "png",

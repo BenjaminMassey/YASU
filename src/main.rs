@@ -2,6 +2,7 @@
 
 mod app;
 mod gui;
+mod replay;
 mod util;
 
 use eframe::egui;
@@ -27,7 +28,7 @@ fn main() {
         "YASU Window",
         eframe::NativeOptions {
             viewport: egui::viewport::ViewportBuilder {
-                inner_size: Option::from(egui::Vec2::new(475f32, 475f32)),
+                inner_size: Option::from(egui::Vec2::new(475f32, 500f32)),
                 ..Default::default()
             },
             ..Default::default()
