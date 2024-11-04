@@ -1,0 +1,6 @@
+title = "YASU Settings TOML"
+
+[replay]
+obs_path = "C:/Users/User/Videos/"
+video_ext = ".mp4"
+save_delay = 4

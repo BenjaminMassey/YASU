@@ -1,26 +1,28 @@
-use clap::Parser;
+use serde::Deserialize;
 
-#[derive(Parser, Debug, Clone)]
-pub struct Args {
-    #[clap(long, default_value_t = String::from("C:\\Users\\User\\Videos\\"))]
-    pub obs_replay_path: String,
-    #[clap(long, default_value_t = String::from(".mp4"))]
-    pub obs_video_ext: String,
-    #[clap(long, default_value_t = 4u64)]
-    pub replay_save_delay: u64,
+#[derive(Deserialize)]
+struct Replay {
+    obs_path: String,
+    video_ext: String,
+    save_delay: u64,
+}
+
+#[derive(Deserialize)]
+struct Settings {
+   replay: Replay,
 }
 
 pub fn perform() {
-    let args = Args::parse();
+    let settings: Settings = toml::from_str(&std::fs::read_to_string("./settings.toml").unwrap()).unwrap();
     println!("Pausing for replay saving...");
-    std::thread::sleep(std::time::Duration::from_secs(args.replay_save_delay));
+    std::thread::sleep(std::time::Duration::from_secs(settings.replay.save_delay));
     println!("Done pausing.");
-    let recent = recent_path(&args);
+    let recent = recent_path(&settings);
     if recent.is_none() {
         println!("Failed to save replay because no recent video replay file found.");
         return;
     }
-    let target = crate::OUT_DIR.to_owned() + "replay" + &args.obs_video_ext;
+    let target = crate::OUT_DIR.to_owned() + "replay" + &settings.replay.video_ext;
     let result = std::fs::copy(&recent.unwrap(), &target);
     if let Err(e) = result {
         println!("Error in replay copying: {e:?}");
@@ -29,8 +31,8 @@ pub fn perform() {
     }
 }
 
-fn recent_path(args: &Args) -> Option<String> {
-    let param = args.obs_replay_path.to_owned() + "Replay*" + &args.obs_video_ext;
+fn recent_path(settings: &Settings) -> Option<String> {
+    let param = settings.replay.obs_path.to_owned() + "Replay*" + &settings.replay.video_ext;
     let vid_paths = glob::glob(&param)
         .unwrap()
         .filter_map(std::result::Result::ok);
