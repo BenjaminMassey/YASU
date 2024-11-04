@@ -6,6 +6,5 @@
 /output/*
 /images/
 /images/*
-/players/
 /players/*
-graphic_background.png
+!/players/default.png

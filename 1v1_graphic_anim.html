@@ -1,0 +1,79 @@
+<!-- DISCLAIMER: THIS WAS MAINLY TAKEN FROM CHATGPT -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dual Image Slide Animation</title>
+  <style>
+    /* CSS for the body to set fixed dimensions */
+    body {
+      width: 1920px;
+      height: 1080px;
+      margin: 0;
+      overflow: hidden; /* Prevents scrolling */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-image: url('./animation_background.png'); /* Static background image */
+      background-size: cover; /* Adjusts the image to cover the entire area */
+      background-position: center; /* Centers the image */
+      background-repeat: no-repeat; /* Prevents the image from repeating */
+    }
+
+    /* Container to keep images side-by-side */
+    .image-container {
+      display: flex;
+      width: 1920px;
+      height: 1080px;
+    }
+
+    /* Initial setup for images */
+    .image {
+      width: 960px;
+      height: 1080px;
+      object-fit: cover;
+      position: relative;
+      transition: left 1s ease-in-out, right 1s ease-in-out;
+    }
+
+    /* Keyframes for sliding images */
+    @keyframes slideLeft {
+      0% { right: 960px; }
+      100% { right: 0; }
+    }
+
+    @keyframes slideRight {
+      0% { left: 960px; }
+      100% { left: 0; }
+    }
+
+    /* Applying animations */
+    .image-left.animate {
+      animation: slideLeft 2s ease-in-out forwards;
+    }
+
+    .image-right.animate {
+      animation: slideRight 2s ease-in-out forwards;
+    }
+  </style>
+</head>
+<body>
+  <!-- Image container holding both images -->
+  <div class="image-container">
+    <!-- First image moves left -->
+    <img src="./output/graphic_1.png" alt="Image Moving Left" class="image image-left" id="imageLeft">
+    <!-- Second image moves right -->
+    <img src="./output/graphic_2.png" alt="Image Moving Right" class="image image-right" id="imageRight">
+  </div>
+
+  <!-- JavaScript to add animation classes on load -->
+  <script>
+    window.onload = function() {
+      document.getElementById('imageLeft').classList.add('animate');
+      document.getElementById('imageRight').classList.add('animate');
+    };
+  </script>
+</body>
+</html>
