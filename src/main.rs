@@ -1,6 +1,6 @@
-#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod app;
+mod graphics;
 mod gui;
 mod replay;
 mod util;

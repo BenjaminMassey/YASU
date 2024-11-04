@@ -21,3 +21,5 @@ image = { version = "0.24", default-features = false, features = [
   "jpeg",
   "png",
 ] }
+raster = "0.2.0"
+text-to-png = "0.2.0"

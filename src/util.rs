@@ -1,4 +1,5 @@
 use crate::app;
+use crate::graphics;
 
 use std::io::Write;
 
@@ -149,5 +150,14 @@ pub fn write_data(yasu: &app::YasuApp, players: bool, scores: bool, infos: bool)
             target,
         )
         .unwrap();
+    }
+
+    // Graphics
+    for i in 0..yasu.player_edits.len() {
+        graphics::output_graphic(
+            &yasu.player_edits[i],
+            &yasu.image_options.clone()[yasu.image_select.clone()[i]].clone(),
+            &format!("./output/graphic_{}.png", i + 1),
+        );
     }
 }
