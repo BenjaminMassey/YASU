@@ -33,6 +33,10 @@ All interaction done within YASU will result in file updates to the files in the
     - `save-delay` (default `4` (seconds))
   - Press CTRL+SHIFT+R while in YASU, with the OBS replay buffer running, and not on the same scene as your replay Media Source.
 
+- Graphics:
+  - Update `animation_background.png`, `graphic_background.png` and `players/default.png` to be what you want as your generation bases. Add known players into the `players` directory as PNG images: these will be string matches based on YASU player name input, so "bean" would look at `players/bean.png` and "John Adams" would look at `players/john adams.png`.
+  - To use the included slide-on animation: make a `Browser` object in an OBS scene, and direct it to something like `path/to/YASU/1v1_graphic_anim.html`. Check `Shutdown source when not visible` and `Refresh browser when scene becomes active` on that browser element.
+
 ## Contact
 
 Email benjamin.w.massey@gmail.com for any questions / inquiries.
