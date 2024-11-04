@@ -27,10 +27,10 @@ All interaction done within YASU will result in file updates to the files in the
   - [Enable the replay buffer in OBS.](https://www.nicoleven.com/how-to-enable-replay-on-your-live-stream-with-obs-studio/)
   - Set the hotkey for `Save Replay` to `Ctrl + Shift + R` in order to match with this app.
   - Make a `Media Source` object in an OBS scene, and direct it to something like `path/to/YASU/output/replay.mp4`: you will need to use the app to make sure a file is created. Check `Close file when inactive` on that media source.
-  - Run the app with the command line arguments as needed:
-    - `obs-replay-path` (default `C:\\Users\\User\\Videos\\`)
-    - `obs-video-ext` (default `.mp4`)
-    - `replay-save-delay` (default `4` (seconds))
+  - Modify the `settings.toml` file under `[replay]` as needed for your local setup:
+    - `obs-path` (default `C:/Users/User/Videos/`)
+    - `video-ext` (default `.mp4`)
+    - `save-delay` (default `4` (seconds))
   - Press CTRL+SHIFT+R while in YASU, with the OBS replay buffer running, and not on the same scene as your replay Media Source.
 
 ## Contact
