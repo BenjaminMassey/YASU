@@ -1,6 +1,6 @@
 use std::io::Write;
 
-const GRAPHIC_BACKGROUND: &str = "./graphic_background.png";
+const GRAPHIC_BACKGROUND: &str = "./graphics/graphic_background.png";
 const PLAYER_PICTURES_DIRECTORY: &str = "./players/";
 
 pub fn output_graphic(player_name: &str, icon_file: &str, output_path: &str) {
@@ -47,7 +47,7 @@ fn text_on_image(
 ) -> raster::Image {
     let temp_file = "./text.png";
     let renderer =
-        text_to_png::TextRenderer::try_new_with_ttf_font_data(include_bytes!("../Roboto-Regular.ttf"))
+        text_to_png::TextRenderer::try_new_with_ttf_font_data(include_bytes!("../fonts/Roboto-Regular.ttf"))
         .expect("Failed to load font");
     let rendered_text = renderer.render_text_to_png_data(text, 128, color).expect("Failed to text_to_png");
     let mut text_file = std::fs::File::options()
