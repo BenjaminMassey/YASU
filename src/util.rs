@@ -1,5 +1,6 @@
 use crate::app;
 use crate::graphics;
+use crate::settings;
 
 use std::io::Write;
 
@@ -101,7 +102,13 @@ pub fn read_data(image_options: &[String])
     (players, scores, infos, images)
 }
 
-pub fn write_data(yasu: &app::YasuApp, players: bool, scores: bool, infos: bool) {
+pub fn write_data(
+    yasu: &app::YasuApp,
+    players: bool,
+    scores: bool,
+    infos: bool,
+    settings: &settings::Settings
+) {
     // Text files
     for file_type in [FileType::Player, FileType::Score, FileType::Info] {
         if (file_type == FileType::Player && !players)
@@ -153,11 +160,14 @@ pub fn write_data(yasu: &app::YasuApp, players: bool, scores: bool, infos: bool)
     }
 
     // Graphics
-    for i in 0..yasu.player_edits.len() {
-        graphics::output_graphic(
-            &yasu.player_edits[i],
-            &yasu.image_options.clone()[yasu.image_select.clone()[i]].clone(),
-            &format!("./output/graphic_{}.png", i + 1),
-        );
+    if settings.graphics.enabled {
+        for i in 0..yasu.player_edits.len() {
+            graphics::output_graphic(
+                &yasu.player_edits[i],
+                &yasu.image_options.clone()[yasu.image_select.clone()[i]].clone(),
+                &format!("./output/graphic_{}.png", i + 1),
+                settings,
+            );
+        }
     }
 }

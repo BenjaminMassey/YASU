@@ -1,5 +1,6 @@
 use crate::gui;
 use crate::replay;
+use crate::settings;
 use crate::util;
 
 use eframe::egui;
@@ -11,6 +12,7 @@ pub struct YasuApp {
     pub info_edits: Vec<String>,
     pub image_select: Vec<usize>,
     pub image_options: Vec<String>, // non-ui element, storage
+    pub settings: settings::Settings,
 }
 impl YasuApp {
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
@@ -34,17 +36,20 @@ impl YasuApp {
             info_edits: start_data.2,
             image_select: start_data.3,
             image_options,
+            settings: settings::get_settings(),
         }
     }
 }
 
 impl eframe::App for YasuApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        ctx.input(|i|{
-            if i.key_pressed(egui::Key::R) && i.modifiers.shift && i.modifiers.ctrl {
-                replay::perform();
-            }
-        });
+        if self.settings.replay.enabled {
+            ctx.input(|i|{
+                if i.key_pressed(egui::Key::R) && i.modifiers.shift && i.modifiers.ctrl {
+                    replay::perform(&self.settings);
+                }
+            });
+        }
         egui::CentralPanel::default().show(ctx, |cui| {
             cui.add(
                 egui::TextEdit::singleline(&mut "Yet Another Streaming Utility (YASU)")
@@ -136,12 +141,12 @@ impl eframe::App for YasuApp {
                     for i in 0..self.score_edits.len() {
                         self.score_edits[i] = "0".to_owned();
                     }
-                    util::write_data(&self, false, true, false);
+                    util::write_data(&self, false, true, false, &self.settings);
                 }
                 if self.player_edits.len() == 2 &&
                     hui.add(egui::Button::new("Swap Players")).clicked() {
                     util::swap_first_second_player(self);
-                    util::write_data(&self, true, true, false);
+                    util::write_data(&self, true, true, false, &self.settings);
                 }
             });
             to_delete.clear();
@@ -184,16 +189,18 @@ impl eframe::App for YasuApp {
                     egui::Vec2::new(120.0, 60.0),
                     egui::Button::new("Submit")
                 ).clicked() {
-                    util::write_data(&self, true, true, true);
+                    util::write_data(&self, true, true, true, &self.settings);
                 }
             });
-            gui::vertical_spacer(cui, 25.0);
-            cui.add(
-                egui::TextEdit::singleline(&mut "Press CTRL+SHIFT+R to update replay.")
-                    .font(gui::primary_font(12.0))
-                    .clip_text(false)
-                    .interactive(false)
-            );
+            if self.settings.replay.enabled {
+                gui::vertical_spacer(cui, 25.0);
+                cui.add(
+                    egui::TextEdit::singleline(&mut "Press CTRL+SHIFT+R to update replay.")
+                        .font(gui::primary_font(12.0))
+                        .clip_text(false)
+                        .interactive(false)
+                );
+            }
         });
     }
 }

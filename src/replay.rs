@@ -1,19 +1,6 @@
-use serde::Deserialize;
+use crate::settings;
 
-#[derive(Deserialize)]
-struct Replay {
-    obs_path: String,
-    video_ext: String,
-    save_delay: u64,
-}
-
-#[derive(Deserialize)]
-struct Settings {
-   replay: Replay,
-}
-
-pub fn perform() {
-    let settings: Settings = toml::from_str(&std::fs::read_to_string("./settings.toml").unwrap()).unwrap();
+pub fn perform(settings: &settings::Settings) {
     println!("Pausing for replay saving...");
     std::thread::sleep(std::time::Duration::from_secs(settings.replay.save_delay));
     println!("Done pausing.");
@@ -31,7 +18,7 @@ pub fn perform() {
     }
 }
 
-fn recent_path(settings: &Settings) -> Option<String> {
+fn recent_path(settings: &settings::Settings) -> Option<String> {
     let param = settings.replay.obs_path.to_owned() + "Replay*" + &settings.replay.video_ext;
     let vid_paths = glob::glob(&param)
         .unwrap()

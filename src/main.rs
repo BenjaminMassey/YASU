@@ -4,6 +4,7 @@ mod app;
 mod graphics;
 mod gui;
 mod replay;
+mod settings;
 mod util;
 
 use eframe::egui;

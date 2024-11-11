@@ -1,6 +1,12 @@
 title = "YASU Settings TOML"
 
 [replay]
+enabled = true
 obs_path = "C:/Users/User/Videos/"
 video_ext = ".mp4"
 save_delay = 4
+
+[graphics]
+enabled = true
+player_image_size = [ 700, 700 ]
+player_image_fill = false
