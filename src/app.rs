@@ -46,7 +46,10 @@ impl eframe::App for YasuApp {
         if self.settings.replay.enabled {
             ctx.input(|i|{
                 if i.key_pressed(egui::Key::R) && i.modifiers.shift && i.modifiers.ctrl {
-                    replay::perform(&self.settings);
+                    let settings = self.settings.clone();
+                    std::thread::spawn(move || {
+                        replay::perform(&settings);
+                    });
                 }
             });
         }

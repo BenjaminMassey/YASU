@@ -162,12 +162,18 @@ pub fn write_data(
     // Graphics
     if settings.graphics.enabled {
         for i in 0..yasu.player_edits.len() {
-            graphics::output_graphic(
-                &yasu.player_edits[i],
-                &yasu.image_options.clone()[yasu.image_select.clone()[i]].clone(),
-                &format!("./output/graphic_{}.png", i + 1),
-                settings,
-            );
+            let player = yasu.player_edits[i].clone();
+            let image = yasu.image_options[yasu.image_select[i]].clone();
+            let output = format!("./output/graphic_{}.png", i + 1);
+            let settings = settings.clone();
+            std::thread::spawn(move || {
+                graphics::output_graphic(
+                    &player,
+                    &image,
+                    &output,
+                    &settings,
+                );
+            });
         }
     }
 }

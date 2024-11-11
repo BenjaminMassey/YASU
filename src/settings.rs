@@ -1,4 +1,4 @@
-#[derive(serde::Deserialize)]
+#[derive(serde::Deserialize, Clone)]
 pub struct Replay {
     pub enabled: bool,
     pub obs_path: String,
@@ -6,14 +6,14 @@ pub struct Replay {
     pub save_delay: u64,
 }
 
-#[derive(serde::Deserialize)]
+#[derive(serde::Deserialize, Clone)]
 pub struct Graphics {
     pub enabled: bool,
     pub player_image_size: Vec<u32>,
     pub player_image_fill: bool,
 }
 
-#[derive(serde::Deserialize)]
+#[derive(serde::Deserialize, Clone)]
 pub struct Settings {
     pub replay: Replay,
     pub graphics: Graphics,
