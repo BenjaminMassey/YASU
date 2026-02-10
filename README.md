@@ -8,7 +8,7 @@ This is written in Rust, using EGUI.
 
 ## Screenshot
 
-![GUI example](yasu-screenshot.png)
+![GUI example](docs/yasu-screenshot.png)
 
 ## Configuration
 
